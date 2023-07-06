@@ -4,7 +4,6 @@ import type { EventItem } from '@/type';
 import { ref, type PropType } from 'vue';
 import EventService from '@/services/EventService';
 
-const event = ref<EventItem | null>(null)
 
 defineProps({
     event: {
