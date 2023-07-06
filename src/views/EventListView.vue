@@ -5,10 +5,11 @@ import { ref, watchEffect, type Ref, computed } from 'vue'
 import EventService from '@/services/EventService'
 import type { AxiosResponse } from 'axios';
 import { useRouter } from 'vue-router'
-
-
+import NProgress from 'nprogress'
 
 const events: Ref<Array<EventItem>> = ref([])
+
+const router = useRouter()
 
 const totalEvent = ref<number>(0)
 
@@ -28,39 +29,21 @@ const props = defineProps({
   }
 })
 
-watchEffect(() => {
-  EventService.getEvent(props.limit, props.page).then((response: AxiosResponse<EventItem[]>) => {
-    events.value = response.data
-    totalEvent.value = response.headers['x-total-count']
-
-  })
+NProgress.start()
+EventService.getEvent(2, props.page).then((response: AxiosResponse<EventItem[]>) => {
+  events.value = response.data
+  totalEvent.value = response.headers['x-total-count']
+}).catch(() => {
+  router.push({ name: 'NetworkError' })
+}).finally(() => {
+  NProgress.done()
 })
 
-const router = useRouter()
-
-const limit = ref(props.limit)
-
-const increaseLimit = () => {
-  limit.value++;
-  router.push({ name: 'event-list', query: { page: props.page, limit: limit.value } })
-}
-
-const decreaseLimit = () => {
-  if (limit.value > 1) {
-    limit.value--;
-    router.push({ name: 'event-list', query: { page: props.page, limit: limit.value } })
-  }
-}
 
 
 </script> 
 
 <template>
-  <h1>Events For Good <button @click="increaseLimit">plus</button>
-    <button @click="decreaseLimit">minus</button>
-    {{ limit }}
-  </h1>
-
   <main class="events">
     <EventCard v-for="event in events" :key="event.id" :event="event"></EventCard>
     <div class="pagination">
