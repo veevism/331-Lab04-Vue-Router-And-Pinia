@@ -46,6 +46,7 @@ const router = createRouter({
         const eventStore = useEventStore()
         return EventService.getEventById(id)
         .then((response) => {
+          console.log(response.data)
           eventStore.setEvent(response.data)
         }).catch((error) => {
           if (error.response && error.response.status === 404) {
